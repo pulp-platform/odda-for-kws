@@ -6,10 +6,19 @@ On-device Domain Adaptation (ODDA) for Noise-Robust Keyword Spotting is a method
 
 If you use our methodology in an academic context, please cite the following publication:
 
-Paper: [Towards On-device Domain Adaptation for Noise-Robust Keyword Spotting](https://TODO)
+Paper: [Towards On-device Domain Adaptation for Noise-Robust Keyword Spotting](https://ieeexplore.ieee.org/document/9869990)
 
 ```
-@article{TODO}
+@INPROCEEDINGS{cioflan2022towardsoddaAICAS,
+  author={Cioflan, Cristian and Cavigelli, Lukas and Rusci, Manuele and De Prado, Miguel and Benini, Luca},
+  booktitle={2022 IEEE 4th International Conference on Artificial Intelligence Circuits and Systems (AICAS)}, 
+  title={Towards On-device Domain Adaptation for Noise-Robust Keyword Spotting}, 
+  year={2022},
+  volume={},
+  number={},
+  pages={82-85},
+  doi={10.1109/AICAS54282.2022.9869990}}
+
 ```
 
 ## Project structure 
