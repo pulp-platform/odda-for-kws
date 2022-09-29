@@ -9,7 +9,7 @@ If you use our methodology in an academic context, please cite the following pub
 Paper: [Towards On-device Domain Adaptation for Noise-Robust Keyword Spotting](https://ieeexplore.ieee.org/document/9869990)
 
 ```
-@INPROCEEDINGS{cioflan2022towardsoddaAICAS,
+@INPROCEEDINGS{cioflan2022oddaAICAS,
   author={Cioflan, Cristian and Cavigelli, Lukas and Rusci, Manuele and De Prado, Miguel and Benini, Luca},
   booktitle={2022 IEEE 4th International Conference on Artificial Intelligence Circuits and Systems (AICAS)}, 
   title={Towards On-device Domain Adaptation for Noise-Robust Keyword Spotting}, 
