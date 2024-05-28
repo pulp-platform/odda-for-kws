@@ -17,6 +17,7 @@
 # Adapted from: Maciejewski, Matthew and Wichern, Gordon and Le Roux, Jonathan, "WHAMR!"
 # Author: Cristian Cioflan, ETH Zurich (cioflanc@iis.ee.ethz.ch)
 
+
 import time
 
 import numpy as np
