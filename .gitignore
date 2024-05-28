@@ -1,0 +1,16 @@
+experiments/
+models/
+reports/
+__pycache__/
+tiny_denoiser/
+*.txt
+*.csv
+*.pth
+*.onnx
+*.log
+*.sh
+*.json
+*.png
+*.out
+*.ipynb_checkpoints
+*.pkl
