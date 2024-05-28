@@ -2,7 +2,6 @@ experiments/
 models/
 reports/
 __pycache__/
-tiny_denoiser/
 *.txt
 *.csv
 *.pth
