@@ -198,7 +198,7 @@ def main():
 
     if (training_parameters['use_pretrained']):
         # Per-epoch analysis
-        model.load_state_dict(torch.load('/usr/scratch/wetterhorn/cioflanc/odda-for-kws/' + training_parameters['pretrained_directory']+'/model.pth', map_location=device))
+        model.load_state_dict(torch.load(training_parameters['pretrained_directory']+'/model.pth', map_location=device))
 
 
     if (experimental_parameters['evaluate']):
