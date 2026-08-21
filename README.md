@@ -9,20 +9,21 @@ On-device Domain Adaptation (ODDA) for Noise-Robust Keyword Spotting is a method
 If you use our methodology in an academic context, please cite the following publication:
 
 Publications:
-* *Towards On-device Domain Adaptation for Noise-Robust Keyword Spotting* [IEEE AICAS 2022](https://ieeexplore.ieee.org/document/9869990)
+* *Efficient On-Device Domain Learning for Keyword Spotting on Ultra-Low-Power Platforms* [IEEE IOTJ 2026](https://ieeexplore.ieee.org/abstract/document/11352794)
 * *On-Device Domain Learning for Keyword Spotting on Low-Power Extreme Edge Embedded Systems* [IEEE AICAS 2024](https://ieeexplore.ieee.org/abstract/document/10595987)
+* *Towards On-device Domain Adaptation for Noise-Robust Keyword Spotting* [IEEE AICAS 2022](https://ieeexplore.ieee.org/document/9869990)
 
 ```
-@inproceedings{cioflan2022towards,
-  author={Cioflan, Cristian and Cavigelli, Lukas and Rusci, Manuele and De Prado, Miguel and Benini, Luca},
-  booktitle={2022 IEEE 4th International Conference on Artificial Intelligence Circuits and Systems (AICAS)}, 
-  title={Towards On-device Domain Adaptation for Noise-Robust Keyword Spotting}, 
-  year={2022},
-  volume={},
-  number={},
-  pages={82-85},
-  doi={10.1109/AICAS54282.2022.9869990}}
-
+@ARTICLE{cioflan2026efficientondevice,
+  author={Cioflan, Cristian and Cavigelli, Lukas and Rusci, Manuele and de Prado, Miguel and Benini, Luca},
+  journal={IEEE Internet of Things Journal}, 
+  title={Efficient On-Device Domain Learning for Keyword Spotting on Ultra-Low-Power Platforms}, 
+  year={2026},
+  volume={13},
+  number={6},
+  pages={10301-10316},
+  keywords={Noise;Accuracy;Training;Noise robustness;Adaptation models;Tiny machine learning;Noise measurement;Acoustics;Topology;Network topology;Domain adaptation;extreme edge;keyword spotting (KWS);low-power microcontrollers;noise robustness;on-device learning (ODL);TinyML},
+  doi={10.1109/JIOT.2026.3654437}}
 ```
 
 ```
@@ -38,6 +39,21 @@ Publications:
   doi={10.1109/AICAS59952.2024.10595987}}
 
 ```
+
+```
+@inproceedings{cioflan2022towards,
+  author={Cioflan, Cristian and Cavigelli, Lukas and Rusci, Manuele and De Prado, Miguel and Benini, Luca},
+  booktitle={2022 IEEE 4th International Conference on Artificial Intelligence Circuits and Systems (AICAS)}, 
+  title={Towards On-device Domain Adaptation for Noise-Robust Keyword Spotting}, 
+  year={2022},
+  volume={},
+  number={},
+  pages={82-85},
+  doi={10.1109/AICAS54282.2022.9869990}}
+
+```
+
+
 
 ## Installation
 
