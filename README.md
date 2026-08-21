@@ -73,6 +73,8 @@ python main.py --config_file config.json
 ## Contributor
 Cristian Cioflan, ETH Zurich, [cioflanc@iis.ee.ethz.ch](cioflanc@iis.ee.ethz.ch)
 
+## Acknowledgements
+This work received support from the Swiss National Science Foundation Project 207913 "TinyTrainer: On-chip Training for TinyML devices". The work was supported in part by the Swiss State Secretariat for Education, Research, and Innovation (SERI) under the SwissChips initiative; and in part by the Horizon Europe dAIEdge Grant 101120726.
 
 ## License
 The code is released under Apache 2.0, see the LICENSE file in the root of this repository for details.
