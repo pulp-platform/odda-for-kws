@@ -25,7 +25,7 @@ import soundfile as sf
 import pyroomacoustics as pra
 
 from numpy.random import uniform
-from wham_room import ReverbRoom, AnechoicRoom
+from whamroom import ReverbRoom, AnechoicRoom
 
 
 def draw_params(reverb_level):
@@ -200,9 +200,3 @@ def gen_signal(reverb_room, anechoic_room, signal, fs):
     s1_reverb = reverberant[0, 0, :fs].T * s1_spatial_scaling
 
     return s1_reverb
-
-
-    
-
-
-

@@ -173,6 +173,11 @@ class Train():
                 noises = noises.to(self.device)
                 model = model.to(self.device)
 
+                if (self.training_parameters['bnstat_update']):
+                    model.train()
+                else:
+                    model.eval()
+
                 # Zero out the parameter gradients after each mini-batch
                 self.optimizer.zero_grad()
 
@@ -209,19 +214,22 @@ class Train():
             torch.save(model.state_dict(), PATH)
 
             # Save best performing network
-            if (tmp_acc > best_acc):
+            # if (tmp_acc > best_acc):
+            if (1):
                 best_acc = tmp_acc
                 best_ep = epoch
                 best_model = model
                 PATH = FILEPATH + 'acc_' + str(best_acc) + "_ep_" + str(best_ep) + '.pth'
+                BEST_PATH = PATH
                 torch.save(model.state_dict(), PATH)
 
-            # Save with Early Exit
-            if (epoch >= best_ep + 10):
-                break
+            # # # Save with early exit
+            # if (epoch >= best_ep + 10):
+            #     break
+
         PATH = FILEPATH +'model.pth'
         torch.save(best_model.state_dict(), PATH)
-        model = best_model
+        model.load_state_dict(torch.load(BEST_PATH))
 
 
     def adapt (self, model):
@@ -278,6 +286,12 @@ class Train():
                 labels = labels.to(self.device)
                 noises = noises.to(self.device)
                 model = model.to(self.device)
+
+                if (self.training_parameters['bnstat_update']):
+                    model.train()
+                else:
+                    model.eval()
+
                 outputs = F.softmax(model(inputs), dim=1)
                 loss = self.criterion(outputs, labels)
                 loss.backward()
@@ -303,20 +317,23 @@ class Train():
                 writer.writerow(statistics)
 
             # Save best performing network
-            if (tmp_acc > best_acc):
+            # if (tmp_acc > best_acc):
+            if (1):
                 best_acc = tmp_acc
                 best_ep = epoch
                 best_model = model
                 PATH = FILEPATH + 'acc_' + str(best_acc) + '_ep_' + str(best_ep) + '.pth'
+                BEST_PATH = PATH
                 torch.save(model.state_dict(), PATH)
 
             if (epoch == 0 or epoch == 1 or epoch == 4 or epoch == 9 or epoch == 14 or epoch == 19 or epoch == 25 or epoch == 29 or epoch == 34 or epoch == 39):
                 PATH = FILEPATH + 'acc_' + str(tmp_acc) + '_ep_' + str(epoch) + '.pth'
                 torch.save(model.state_dict(), PATH)
 
-            # Save best model
-            if (epoch >= best_ep + 10):
-                break
+            # # # Save with early exit best model
+            # if (epoch >= best_ep + 10):
+            #     break
 
         PATH = self.log_path + 'model.pth'
         torch.save(best_model.state_dict(), PATH)
+        model.load_state_dict(torch.load(BEST_PATH))

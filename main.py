@@ -72,11 +72,12 @@ def main():
     parser.add_argument('--use_pretrained', type=int, default=None, help = 'Use pretrained model')
     parser.add_argument('--pretrained_directory', type=str, default=None, help = 'Location of pretrained model')
     parser.add_argument('--epochs', type=int, default=None, help = 'Number of epochs')
-    parser.add_argument('--batch size', type=int, default=None, help = 'Batch size')
+    parser.add_argument('--batch_size', type=int, default=None, help = 'Batch size')
+    parser.add_argument('--bnstat_update', type=bool, default=None, help = 'Update running stats of BatchNorm')
     parser.add_argument('--loss', type=str, default=None, help = 'Loss type')
-    parser.add_argument('--initial_lr', type=int, default=None, help = 'Initial learning rate')
+    parser.add_argument('--initial_lr', type=float, default=None, help = 'Initial learning rate')
     parser.add_argument('--optimizer', type=str, default=None, help = 'Optimizer')
-    parser.add_argument('--momentum', type=int, default=None, help = 'Momentum')
+    parser.add_argument('--momentum', type=float, default=None, help = 'Momentum')
     parser.add_argument('--frozen_layers', nargs="*", type=str, default=None, help = 'List of frozen layers, for instance: "conv1", "bn1"...')
     parser.add_argument('--silence_percentage', type=int, default=None, help = 'Percentage of silence in the dataset')
     parser.add_argument('--unknown_percentage', type=int, default=None, help = 'Percentage of unknown in the dataset')
@@ -97,8 +98,8 @@ def main():
     parser.add_argument('--evaluate', type=int, default=None, help='Evaluate pretrained model.')
 
     parser.add_argument('--selection_method', type=str, default = None, help = 'Data selection method')
-    parser.add_argument('--selection_interval_upper', type=int, default = None, help= 'Data selection interval upper bound')
-    parser.add_argument('--selection_interval_lower', type=int, default = None, help= 'Data selection interval lower bound')
+    parser.add_argument('--selection_interval_upper', type=float, default = None, help= 'Data selection interval upper bound')
+    parser.add_argument('--selection_interval_lower', type=float, default = None, help= 'Data selection interval lower bound')
 
     parser.add_argument('--noise_train', nargs="*", type=str, default=None, help = 'List of noises on which we train the net: "DKITCHEN", "DLIVING"...')
     parser.add_argument('--noise_test', nargs="*", type=str, default=None, help = 'List of noises on which we test the net: "DKITCHEN", "DLIVING"....')
@@ -128,7 +129,7 @@ def main():
     print (device)
 
     # Dataset generation
-    audio_processor = DatasetCreator(environment_parameters, training_parameters, preprocessing_parameters)
+    audio_processor = DatasetCreator(environment_parameters, training_parameters, preprocessing_parameters, experimental_parameters)
 
     train_size = audio_processor.get_size('training')
     valid_size = audio_processor.get_size('validation')
@@ -141,8 +142,16 @@ def main():
     print (audio_processor.words_list)
     print (n_classes)
     
+    # UP TO DATE
     model = getattr(sys.modules["architectures.dscnn"], training_parameters['model'])(n_channels = training_parameters['channels'], 
         n_blocks = training_parameters['blocks'], n_classes = 12, use_bias = False, stem = 'sym', padding='asym', device = device)
+
+    # NOT SO OLD
+    # model = getattr(sys.modules["architectures.dscnn"], training_parameters['model'])(n_channels = training_parameters['channels'], 
+    #     n_blocks = training_parameters['blocks'], n_classes = 12, use_bias = True, stem = 'asym', padding='sym', device = device)
+        
+    # OUTDATED
+    # model = getattr(sys.modules["architectures.dscnn"], training_parameters['model'])(use_bias = True)
     
     model.to(device)
 
@@ -150,15 +159,25 @@ def main():
     # Extend frozen layers list - weights and biases
     frozen_layers = []
     for elem in training_parameters['frozen_layers']:
-        if "." in elem:
-            frozen_layers.append(elem)
-        else:
-            frozen_layers.append(elem+".weight")
-            frozen_layers.append(elem+".bias")
+        # Outdated
+        # if "." in elem:
+        #     frozen_layers.append(elem)
+        # else:
+        #     frozen_layers.append(elem+".weight")
+        #     frozen_layers.append(elem+".bias")
+        # IOTJ25
+        frozen_layers.append(elem+".weight")
+        frozen_layers.append(elem+".bias")
+       
     # Freeze layers
     for layer_name, layer_param in model.named_parameters():
+        print (layer_name)
         if layer_name in frozen_layers:
+            print ("Freezing")
+            print (layer_name)
             layer_param.requires_grad = False
+
+    print (model)
 
     summary(model,(1,49,preprocessing_parameters['feature_bin_count']), device=device.type)
     dummy_input = torch.rand(1, 1,49,preprocessing_parameters['feature_bin_count']).to(device)
@@ -196,6 +215,13 @@ def main():
 
         shutil.copyfile(args['config_file'], train_log_path+args['config_file'])
 
+        # Accuracy on the validation set. 
+        print ("Validation acc")
+        acc = training_environment.validate(model, mode='validation', statistics=False)
+        # Accuracy on the testing set. 
+        # print ("Testing acc")
+        # acc = training_environment.validate(model, mode='testing', statistics=False)
+
     if (training_parameters['use_pretrained']):
         # Per-epoch analysis
         model.load_state_dict(torch.load(training_parameters['pretrained_directory']+'/model.pth', map_location=device))
@@ -213,17 +239,15 @@ def main():
         print (odda_environment_parameters)
   
         # Generate new dataset considering ODDA constraints
-        odda_audio_processor = DatasetCreator(odda_environment_parameters, odda_training_parameters, preprocessing_parameters)
+        odda_audio_processor = DatasetCreator(odda_environment_parameters, odda_training_parameters, preprocessing_parameters, experimental_parameters)
         # Create training and evaluation environment
         odda_environment = Train(odda_audio_processor, odda_training_parameters, model, device, train_log_path) 
 
         # Accuracy on the validation set. 
         print ("Validation acc")
         acc = odda_environment.validate(model, mode='validation', statistics=False)
-        # Accuracy on the testing set. 
-        print ("Testing acc")
-        acc = odda_environment.validate(model, mode='testing', statistics=False)
-        # Accuracy on the testing set. 
+
+        # Accuracy on the ODDA validation set. 
         print ("Validation acc on TARGET noise")
         acc = odda_environment.validate(model, mode='odda_val', statistics=False)
 
@@ -238,7 +262,7 @@ def main():
     print("Dataset split (Train/valid/test/ODDA): "+ str(train_size) +"/"+str(valid_size) + "/" + str(test_size) + "/" + str(odda_size))
 
     if (training_parameters['frozen_layers']): # 0 instead of -1 for inversion
-        if (training_parameters['inverted'] == "true"):
+        if (training_parameters['inverted']):
             odda_log_path = experimental_parameters['model_path']+'odda/'+ training_parameters['model'] + "_" + experimental_parameters['selection_method']+ "_" + \
                     str(experimental_parameters['target_noise']) +"_" + str(training_parameters['frozen_layers'][0]) + "_"+ \
                     str(experimental_parameters['selection_interval_lower']) + \
@@ -271,7 +295,7 @@ def main():
         print (odda_environment_parameters)
   
         # Generate new dataset considering ODDA constraints
-        odda_audio_processor = DatasetCreator(odda_environment_parameters, odda_training_parameters, preprocessing_parameters)
+        odda_audio_processor = DatasetCreator(odda_environment_parameters, odda_training_parameters, preprocessing_parameters, experimental_parameters)
 
         # Hacky 'odda' dataset transfer from selection step to adaptation step
         # TODO: Integrate
@@ -284,10 +308,7 @@ def main():
         # Accuracy on the validation set. 
         print ("Validation acc pre-ODDA")
         acc = odda_environment.validate(model, mode='validation', statistics=False)
-        # Accuracy on the testing set. 
-        print ("Testing acc pre-ODDA")
-        acc = odda_environment.validate(model, mode='testing', statistics=False)
-        # Accuracy on the testing set. 
+        # Accuracy on the ODDA validation set. 
         print ("Validation acc pre-ODDA on TARGET noise")
         acc = odda_environment.validate(model, mode='odda_val', statistics=False)
 
@@ -310,10 +331,7 @@ def main():
         # Final accuracy on ODDA
         print ("Validation acc")
         acc = odda_environment.validate(model, mode='validation', statistics=False)
-        # Accuracy on the testing set. 
-        print ("Testing acc")
-        acc = odda_environment.validate(model, mode='testing', statistics=False)
-        # Accuracy on the testing set. 
+        # Accuracy on the ODDA validation set. 
         print ("Validation acc on TARGET noise")
         acc = odda_environment.validate(model, mode='odda_val', statistics=False)
 
@@ -323,10 +341,11 @@ def main():
     # Accuracy on the validation set. 
     print ("Validation acc")
     acc = training_environment.validate(model, mode='validation', statistics=False)
+    # TODO: Fix OFFLINE vs ONLINE testing
     # Accuracy on the testing set. 
-    print ("Testing acc")
-    acc = training_environment.validate(model, mode='testing', statistics=False)
-    # Accuracy on the testing set. 
+    # print ("Testing acc")
+    # acc = training_environment.validate(model, mode='testing', statistics=False)
+    # Accuracy on the ODDA validation set. 
     print ("Validation acc on TARGET noise")
     acc = training_environment.validate(model, mode='odda_val', statistics=False)
 
