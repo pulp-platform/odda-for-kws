@@ -63,7 +63,7 @@ conda env create -f environment.yml
 ```
 ## Example
 
-`config.json` shows a configuration example for (pre)training a NL-KWS DS-CNN S network on GoogleSpeechCommands v2. 
+`config.json` shows a configuration example for applying ODDA on a NA-KWS pretrained DS-CNN S network on GoogleSpeechCommands v2 for the *meeting* noise from DEMAND. 
 
 To run the main script, use the command:
 ```
