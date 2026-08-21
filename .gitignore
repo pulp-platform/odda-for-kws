@@ -1,0 +1,15 @@
+experiments/
+models/
+reports/
+__pycache__/
+*.txt
+*.csv
+*.pth
+*.onnx
+*.log
+*.sh
+*.json
+*.png
+*.out
+*.ipynb_checkpoints
+*.pkl

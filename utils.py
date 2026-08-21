@@ -1,4 +1,4 @@
-# Copyright (C) 2022 ETH Zurich
+# Copyright (C) 2021-2024 ETH Zurich
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,17 +14,27 @@
 # SPDX-License-Identifier: Apache-2.0
 # ==============================================================================
 #
-# Author: Cristian Cioflan, ETH (cioflanc@iis.ee.ethz.ch)
+# Author: Cristian Cioflan, ETH Zurich (cioflanc@iis.ee.ethz.ch)
 
 
 import os
-
-from sklearn.metrics import confusion_matrix
+import datetime
+import json
+import csv
 
 import numpy as np
 import seaborn as sn
 import pandas as pd
 import matplotlib.pyplot as plt
+
+from sklearn.metrics import confusion_matrix
+
+
+def save_histogram(criterion, data, word):
+    with open(criterion+"_"+word+'.csv', 'a', encoding="ISO-8859-1", newline='') as myfile:
+        wr = csv.writer(myfile)
+        wr.writerows(data)
+    myfile.close()
 
 
 def npy_to_txt(layer_number, activations):
@@ -91,70 +101,103 @@ def per_noise_accuracy(labels, predicted, noises):
                 total = total + 1
                 if ((labels == predicted)[i]):
                     correct = correct + 1
-        print('Noise number %3d - accuracy: %.3f' % (noise,  100 * correct / total))   
+        print('Noise number %3d - accuracy: %.3f' % (noise,  100 * correct / total))
 
 
-def parameter_generation():
-    # Data processing parameters
+def parameter_generation(args):
 
-    data_processing_parameters = {
-    'feature_bin_count':10
-    }
-    time_shift_ms=200
-    sample_rate=16000
-    clip_duration_ms=1000
-    time_shift_samples= int((time_shift_ms * sample_rate) / 1000)
-    window_size_ms=40.0
-    window_stride_ms=20.0
-    desired_samples = int(sample_rate * clip_duration_ms / 1000)
-    window_size_samples = int(sample_rate * window_size_ms / 1000)
-    window_stride_samples = int(sample_rate * window_stride_ms / 1000)
-    length_minus_window = (desired_samples - window_size_samples)
-    if length_minus_window < 0:
-        spectrogram_length = 0
+    # Opening JSON file
+    with open(args['config_file']) as json_file:
+        configuration = json.load(json_file)
+
+
+    # Use manually passed parameters to overwrite the .json
+    # Overwrite experimental parameters if exits manual definition
+    for key, value in args.items():
+        if value is not None:
+            configuration['experimental_parameters'][key] = value
+            
+    # Overwrite training parameters if exits manual definition
+    for key, value in args.items():
+        if value is not None:
+            configuration['training_parameters'][key] = value
+
+    # Overwrite environment parameters if exits manual definition
+    for key, value in args.items():
+        if value is not None:
+            configuration['environment_parameters'][key] = value
+
+    # Overwrite environment parameters if exits manual definition
+    for key, value in args.items():
+        if value is not None:
+            configuration['preprocessing_parameters'][key] = value
+
+    # Preprocessing parameters
+    configuration['preprocessing_parameters']['time_shift_samples'] = int((configuration['preprocessing_parameters']['time_shift_ms'] * configuration['preprocessing_parameters']['sample_rate']) / 1000)
+    configuration['preprocessing_parameters']['desired_samples'] = int(configuration['preprocessing_parameters']['sample_rate'] * configuration['preprocessing_parameters']['clip_duration_ms'] / 1000)
+    configuration['preprocessing_parameters']['window_size_samples'] = int(configuration['preprocessing_parameters']['sample_rate'] * configuration['preprocessing_parameters']['window_size_ms'] / 1000)
+    configuration['preprocessing_parameters']['window_stride_samples'] = int(configuration['preprocessing_parameters']['sample_rate'] * configuration['preprocessing_parameters']['window_stride_ms'] / 1000)
+    configuration['preprocessing_parameters']['length_minus_window']= (configuration['preprocessing_parameters']['desired_samples'] - configuration['preprocessing_parameters']['window_size_samples'])
+    if configuration['preprocessing_parameters']['length_minus_window'] < 0:
+        configuration['preprocessing_parameters']['spectrogram_length'] = 0
     else:
-        spectrogram_length = 1 + int(length_minus_window / window_stride_samples)
-    data_processing_parameters['desired_samples'] = desired_samples
-    data_processing_parameters['sample_rate'] = sample_rate
-    data_processing_parameters['spectrogram_length'] = spectrogram_length
-    data_processing_parameters['window_stride_samples'] = window_stride_samples
-    data_processing_parameters['window_size_samples'] = window_size_samples
+        configuration['preprocessing_parameters']['spectrogram_length'] = 1 + int(configuration['preprocessing_parameters']['length_minus_window'] / configuration['preprocessing_parameters']['window_stride_samples'])
+
+
+    # Environment parameters  
+    configuration['environment_parameters']['data_dir'] = configuration['environment_parameters']['data_dir_'+configuration['environment_parameters']['keywords_dataset']]
 
     # Training parameters
-    training_parameters = {
-    'noise_mode':'odda', # nlkws, nakws, odda
-    'noise_dataset':'demand',
-    'data_dir':'path/to/GSC/dataset',
-    'data_url':'https://storage.googleapis.com/download.tensorflow.org/data/speech_commands_v0.02.tar.gz',
-    'epochs':60,
-    'batch_size':128,
-    'silence_percentage':10.0,
-    'unknown_percentage':10.0,
-    'validation_percentage':10.0,
-    'testing_percentage':10.0,
-    'background_frequency':1,
-    'background_volume':5,
-    }
-
-    if training_parameters['noise_dataset'] == 'demand':
-        training_parameters['noise_dir'] = 'path/to/DEMAND/dataset'
-        training_parameters['noise_test'] = ['DKITCHEN', 'DLIVING', 'DWASHING', 'NFIELD', 'NPARK', \
-                                      'NRIVER', 'OHALLWAY', 'OMEETING', 'OOFFICE', 'PCAFETER', \
-                                      'PRESTO', 'PSTATION', 'SCAFE', 'SPSQUARE', 'STRAFFIC', \
-                                      'TBUS', 'TCAR', 'TMETRO']
-        training_parameters['noise_train'] = ['DKITCHEN', 'DLIVING', 'NPARK', \
-                                      'NRIVER', 'OHALLWAY', 'OMEETING', 'OOFFICE', 'PCAFETER', \
-                                      'PRESTO', 'PSTATION', 'SCAFE', 'SPSQUARE', 'STRAFFIC', \
-                                      'TBUS', 'TCAR']
+    if (configuration['training_parameters']['task'] == "gscv2_12w"):
+        configuration['training_parameters']['wanted_words'] = configuration['training_parameters']['wanted_words_gscv2_12w']
+    elif (configuration['training_parameters']['task'] == "gscv2_8w"):
+        configuration['training_parameters']['wanted_words'] = configuration['training_parameters']['wanted_words_gscv2_8w']
+    elif (configuration['training_parameters']['task'] == "gscv2_6w"):
+        configuration['training_parameters']['wanted_words'] = configuration['training_parameters']['wanted_words_gscv2_6w']
+    elif (configuration['training_parameters']['task'] == "gscv2_35w"):
+        configuration['training_parameters']['wanted_words'] = configuration['training_parameters']['wanted_words_gscv2_35w']
     else:
-        training_parameters['noise_dir'] = 'path/to/GSC/dataset/_background_noise_'
+        # Perform frequency-based selection for MSWC
+        utterances_dict = {}
+        with open(configuration['environment_parameters']['data_dir'][:-7]+"_align/en_splits.csv") as file:
+          
+            lines = file.readlines()
+            for line in lines:
+                # Count utterances per word - word frequency
+                word = line.split(',')[1].split('/')[0]
+                if word not in utterances_dict:
+                    utterances_dict[word] = 0
+                utterances_dict[word] = utterances_dict[word] + 1
 
-    target_words='yes,no,up,down,left,right,on,off,stop,go,'  # GSCv2 - 12 words
-    # Selecting 35 words
-    # target_words='yes,no,up,down,left,right,on,off,stop,go,backward,bed,bird,cat,dog,eight,five,follow,forward,four,happy,house,learn,marvin,nine,one,seven,sheila,six,three,tree,two,visual,wow,zero,'  # GSCv2 - 35 words
-    wanted_words=(target_words).split(',')
-    wanted_words.pop()
-    training_parameters['wanted_words'] = wanted_words
-    training_parameters['time_shift_samples'] = time_shift_samples
+        utterances_dict_ordered = sorted(utterances_dict.items(), key=lambda x: x[1], reverse=True)
 
-    return training_parameters, data_processing_parameters
+        if (configuration['training_parameters']['wanted_frequency_mswc'] != 0):
+            # Select files with more than "minimum_uttr" utterances
+            minimum_uttr = configuration['training_parameters']['wanted_frequency_mswc']
+            utterances_dict_select = [{'word': elem, 'count': utterances_dict[elem]} for elem in utterances_dict if utterances_dict[elem]>minimum_uttr]
+            wanted_words = [elem['word'] for elem in utterances_dict_select]    
+
+            configuration['training_parameters']['wanted_words'] = wanted_words
+            
+        else:
+            # If no frequency was specified, use the GSC words for MSWC
+            if ('12w' in configuration['training_parameters']['task']):
+                configuration['training_parameters']['wanted_words'] = configuration['training_parameters']['wanted_words_gscv2_12w']
+            elif ('8w' in configuration['training_parameters']['task']):
+                configuration['training_parameters']['wanted_words'] = configuration['training_parameters']['wanted_words_gscv2_8w']
+            elif ('6w' in configuration['training_parameters']['task']):
+                configuration['training_parameters']['wanted_words'] = configuration['training_parameters']['wanted_words_gscv2_6w']
+            elif ('35w' in configuration['training_parameters']['task']):
+                configuration['training_parameters']['wanted_words'] = configuration['training_parameters']['wanted_words_mswc_35w']
+            else:
+                print ("Unknown configuration.")
+
+    configuration['training_parameters']['time_shift_samples'] = int((configuration['preprocessing_parameters']['time_shift_ms'] * configuration['preprocessing_parameters']['sample_rate']) / 1000)
+
+    # Experimental parameters
+    configuration['experimental_parameters']['date'] = str(datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S"))
+
+    print ("------------ Complete configuration ------------")
+    print (configuration)
+
+    return configuration['environment_parameters'], configuration['preprocessing_parameters'], configuration['training_parameters'], configuration['experimental_parameters']
