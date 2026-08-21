@@ -9,8 +9,8 @@ On-device Domain Adaptation (ODDA) for Noise-Robust Keyword Spotting is a method
 If you use our methodology in an academic context, please cite the following publication:
 
 Publications:
-* *Towards On-device Domain Adaptation for Noise-Robust Keyword Spotting* [IEEE AICAS](https://ieeexplore.ieee.org/document/9869990)
-* *On-Device Domain Learning for Keyword Spotting on Low-Power Extreme Edge Embedded Systems* [arXiv preprint](https://arxiv.org/abs/2403.10549)
+* *Towards On-device Domain Adaptation for Noise-Robust Keyword Spotting* [IEEE AICAS 2022](https://ieeexplore.ieee.org/document/9869990)
+* *On-Device Domain Learning for Keyword Spotting on Low-Power Extreme Edge Embedded Systems* [IEEE AICAS 2024](https://ieeexplore.ieee.org/abstract/document/10595987)
 
 ```
 @inproceedings{cioflan2022towards,
@@ -26,14 +26,17 @@ Publications:
 ```
 
 ```
-@misc{cioflan2024ondevice,
-      title={On-Device Domain Learning for Keyword Spotting on Low-Power Extreme Edge Embedded Systems}, 
-      author={Cristian Cioflan and Lukas Cavigelli and Manuele Rusci and Miguel de Prado and Luca Benini},
-      year={2024},
-      eprint={2403.10549},
-      archivePrefix={arXiv},
-      primaryClass={cs.SD}
-}
+@INPROCEEDINGS{cioflan2024ondevice,
+  author={Cioflan, Cristian and Cavigelli, Lukas and Rusci, Manuele and de Prado, Miguel and Benini, Luca},
+  booktitle={2024 IEEE 6th International Conference on AI Circuits and Systems (AICAS)}, 
+  title={On-Device Domain Learning for Keyword Spotting on Low-Power Extreme Edge Embedded Systems}, 
+  year={2024},
+  volume={},
+  number={},
+  pages={6-10},
+  keywords={Accuracy;Embedded systems;Microcontrollers;Circuits and systems;Noise;Refining;Neural networks;On-Device Learning;Domain Adaptation;Low-Power Microcontrollers;Extreme Edge;TinyML;Noise Robustness;Keyword Spotting},
+  doi={10.1109/AICAS59952.2024.10595987}}
+
 ```
 
 ## Installation
