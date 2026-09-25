@@ -35,7 +35,7 @@ from pathlib import Path
 class DatasetCreator(object):
     
     # Prepare data
-    def __init__(self, environment_parameters, training_parameters, preprocessing_parameters):
+    def __init__(self, environment_parameters, training_parameters, preprocessing_parameters, experimental_parameters):
             self.random_seed = 59185 
 
 
@@ -51,6 +51,7 @@ class DatasetCreator(object):
             self.environment_parameters = environment_parameters
             self.training_parameters = training_parameters
             self.preprocessing_parameters = preprocessing_parameters
+            self.experimental_parameters = experimental_parameters
 
             self.generate_background_noise()
             if (self.training_parameters['reverb'] == "true"):
@@ -330,8 +331,9 @@ class DatasetCreator(object):
             rand_data_order.shuffle(self.data_set[set_index])
 
         # Initializing ODDA data as the training data
-        # Required for pretraining, followed by selection and adaptation
-        self.data_set['odda'] = deepcopy(self.data_set['training'])
+        # Selecting a subset of the training dataset for the adaptation
+        odda_dataset_len = int(len(self.data_set['training'])*self.experimental_parameters['selection_interval_upper']/100)
+        self.data_set['odda'] = deepcopy(self.data_set['training'][:odda_dataset_len])
         self.data_set['odda_val'] = deepcopy(self.data_set['validation'])
 
 
