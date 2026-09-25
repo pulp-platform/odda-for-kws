@@ -1,0 +1,3 @@
+[submodule "kws-on-pulp"]
+	path = kws-on-pulp
+	url = git@github.com:pulp-platform/kws-on-pulp.git
